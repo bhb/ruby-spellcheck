@@ -1,8 +1,12 @@
 class WordCounter
-  
-  def initialize(path)
-    @hash = {}
+
+  def self.for_path(path)
     words = File.read(path).split(" ")
+    self.new(words)
+  end
+  
+  def initialize(words)
+    @hash = {}
     words.each do |word|
       @hash[word.downcase.to_sym] ||= 0
       @hash[word.downcase.to_sym] += 1
@@ -15,6 +19,10 @@ class WordCounter
 
   def present?(key)
     @hash.keys.member?(key)
+  end
+
+  def any_present?(keys)
+    keys.any? {|key| present? key}
   end
 
 end
