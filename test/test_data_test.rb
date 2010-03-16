@@ -1,9 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', 'lib', 'spellcheck')
-
-require 'test/unit'
-require 'shoulda'
-require 'construct'
-require 'ruby-debug'
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 class TestDataTest < Test::Unit::TestCase
 
