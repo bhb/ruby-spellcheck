@@ -9,8 +9,12 @@ class WordCounter
     end
   end
 
-  def [](key)
+  def count(key)
     @hash.fetch(key, 1)
+  end
+
+  def present?(key)
+    @hash.keys.member?(key)
   end
 
 end
