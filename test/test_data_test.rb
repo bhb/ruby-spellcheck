@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), '..', 'lib', 'spellcheck')
 require 'test/unit'
 require 'shoulda'
 require 'construct'
+require 'ruby-debug'
 
 class TestDataTest < Test::Unit::TestCase
 
@@ -12,7 +13,7 @@ class TestDataTest < Test::Unit::TestCase
     should "should map word to single misspelling" do
       within_construct do |c|
         c.file "test.643","family 1 familly"
-        assert_equal ["family"], TestData.new("test.643")[:family]
+        assert_equal ["familly"], TestData.new("test.643")[:family]
       end
     end
 
