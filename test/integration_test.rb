@@ -196,11 +196,12 @@ class IntegrationTest < Test::Unit::TestCase
 
   should "have 68 errors in first corpus" do
     mistakes = 0
+    spellchecker = Spellchecker.new
     CORPUS1.each do |word, misspellings|
-      # TODO - no reason to conflate massaging the data with the checking itself
-      misspellings = misspellings.split(" ")
-      correction = Spellchecker.new.correct(word)
-      mistakes+=1 if (correction != word)
+      misspellings.split(' ').each do |misspelling|
+        correction = spellchecker.correct(word)
+        mistakes+=1 if (correction != word)
+      end
     end
     assert_equal 68, mistakes
   end

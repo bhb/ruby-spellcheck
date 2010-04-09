@@ -14,11 +14,11 @@ class WordCounter
   end
 
   def count(key)
-    @hash.fetch(key, 1)
+    @hash.fetch(key.to_sym, 1)
   end
 
   def present?(key)
-    @hash.keys.member?(key)
+    @hash.keys.member?(key.to_sym)
   end
 
   def any_present?(keys)

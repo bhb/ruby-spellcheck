@@ -3,7 +3,8 @@ require File.join(File.dirname(__FILE__), 'test_helper')
 class EditGeneratorClass < Test::Unit::TestCase
 
   should "give word back if edit distance is zero" do
-    generator = EditGenerator.new("something", nil)
+    counter = WordCounter.new(%w{something smoothing seething something soothing})
+    generator = EditGenerator.new("something", counter)
     assert_equal ["something"], generator.edits(0)
   end
   
@@ -18,5 +19,5 @@ class EditGeneratorClass < Test::Unit::TestCase
     generator = EditGenerator.new("something", counter)
     assert_equal %w{smoothing seething something soothing}, generator.edits(2)    
   end
-  
+
 end
