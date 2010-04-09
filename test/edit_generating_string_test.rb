@@ -2,6 +2,14 @@ require File.join(File.dirname(__FILE__), 'test_helper')
 
 class EditGeneratingStringTest < Test::Unit::TestCase
 
+  should "given the same string, should act the same" do
+    egstring1 = EditGeneratingString.new("abc")
+    egstring2 = EditGeneratingString.new("abc")
+    assert_not_equal egstring1.object_id, egstring2.object_id
+    assert_equal egstring1, egstring2
+    assert_equal egstring1.hash, egstring2.hash
+  end
+
   should "give all deletes" do
     deletes = EditGeneratingString.new("abc").deletes
     assert deletes.include?("ab")
