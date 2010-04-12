@@ -18,7 +18,7 @@ class WordCounter
   end
 
   def present?(key)
-    @hash.keys.member?(key.to_sym)
+    @hash.has_key?(key.to_sym)
   end
 
   def any_present?(keys)

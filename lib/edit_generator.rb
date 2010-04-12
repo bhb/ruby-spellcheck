@@ -11,17 +11,25 @@ class EditGenerator
     @edits[0] = [@word]
   end
 
-  def candidates
-    
+  def candidates(word)
+    (0..2).each do |distance|
+      words = edits(distance)
+      return words unless words.empty?
+    end
+    []
   end
 
-  def edits(distance)
+  def edits(distance, select_real_words=true)
     distance.times do |count|
       if @edits[count+1]==nil
         @edits[count+1] = @edits[count].map{|word| edits_for_word(word)}.flatten.uniq
       end
     end
-    select_real_words(@edits[distance])
+    if select_real_words
+      select_real_words(@edits[distance])
+    else
+      @edits[distance]
+    end
   end
 
   private
