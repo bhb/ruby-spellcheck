@@ -2,11 +2,13 @@ require 'delegate'
 
 class EditGenerator
 
+  ALPHABET = ('a'..'z').to_a
+
   def initialize(word, word_counter)
     @word = word
     @word_counter = word_counter
     @edits = []
-    @edits[0] = [@word] #[EditGeneratingString.get(@word)]
+    @edits[0] = [@word]
   end
 
   def candidates
@@ -16,14 +18,10 @@ class EditGenerator
   def edits(distance)
     distance.times do |count|
       if @edits[count+1]==nil
-        @edits[count+1] = @edits[count].map{|word| word.edits}.flatten.uniq
+        @edits[count+1] = @edits[count].map{|word| edits_for_word(word)}.flatten.uniq
       end
     end
-    #puts "number of words #{@edits[distance].length}"
-    #puts "number of cuttable strings #{CuttableString.cache.length}"
-    #puts "number of edit strings #{EditGeneratingString.cache.length}"
-    @edits[distance]
-    #select_real_words(@edits[distance])
+    select_real_words(@edits[distance])
   end
 
   private
@@ -34,210 +32,45 @@ class EditGenerator
     end
   end
 
-end
+  def edits_for_word(word)
+    # yes, this could be broken into multiple methods, but perf improvement of inlining is significant
+    splits = []
 
-# TODO - move to 'lib/ext' or something
-
-# Yes, monkey-patching sucks, but creating decorators was prohibitively slow
-class String
-
-  ALPHABET = ('a'..'z').to_a
-
-  def cut(index)
-    @cut_cache ||= []
-    @cut_cache[index] ||= [self[0,index], self[index,length-index]]
-  end
-
-  def first
-    self[0,1] || ""
-  end
-
-  def second
-    self[1,1] || ""
-  end
-
-  def rest(starting_index=1)
-    self[starting_index,self.length-starting_index] || ""
-  end
-
-  def edits
-    @splits = generate_splits
-    (deletes + transposes + replaces + inserts).uniq   # .map{ |x| self.class.get(x)}
-  end
-
-  private
-
-  def generate_splits
-    return @splits if @splits
-    @splits = []
-    length.times do |i|
-      @splits << cut(i)
+    word.length.times do |index|
+      splits << [word[0,index], word[index,word.length-index]]
     end
-    @splits
-  end
 
-  def deletes
-    @splits.map do |left, right|
-      "#{left}#{right.rest}"
-    end
-  end
-
-  def transposes
-    @splits.map do |left, right|
-      "#{left}#{right.second}#{right.first}#{right.rest(2)}"
-    end
-  end
-
-  def replaces
-    arr = []
-    @splits.each do |left, right|
-      ALPHABET.each do |letter|
-        arr << "#{left}#{letter}#{right.rest}"
-      end
-    end
-    arr
-  end
-
-  def inserts
-    arr = []
-    (@splits + [[self,""]]).map do |left, right| 
-      ALPHABET.map do |letter|
-        arr << "#{left}#{letter}#{right}"
-      end
-    end
-    arr
-  end
-
-end
-
-
-# class CuttableString < DelegateClass(String)
-
-#   def self.cache
-#     @@cache
-#   end
-  
-#   def self.get(string)
-#     @@cache ||= {}
-#     if @@cache.has_key?(string)
-#       @@cache[string]
-#     else
-#       cstring = self.new(string)
-#       cstring.freeze
-#       @@cache[string] = cstring
-#     end
-#   end
-
-#   def initialize(string)
-#     super
-#     @string = string
-#     @cut_cache = []
-#     @hash = @string.hash
-#   end
-
-#   def hash
-#     @hash
-#   end
-
-#   def cut(index)
-#     #if @cut_cache[index]==nil
+    edits = []
+    splits.each do |left,right|
+      right_rest = right[1,right.length-1] || ""
+      right_first = right[0,1] || ""
+      right_second = right[1,1] || ""
+      right_rest_2 = right[2,right.length-2] || ""
       
-#     #else
-      
-#     #end
-#     @cut_cache[index] ||= [self.class.get(@string[0,index]), self.class.get(@string[index..-1])]
-#   end
+      # compute delete
+      edits << "#{left}#{right_rest}"
 
-#   def first
-#     #self.class.get(self.cut(1).first || "")
-#     self.class.get(@string[0,1] || "")
-#   end
+      # compute transpose
+      edits << "#{left}#{right_second}#{right_first}#{right_rest_2}"
 
-#   def second
-#     self.class.get(@string[1,1] || "")
-#   end
-
-#   def rest(starting_index=1)
-#     self.class.get(@string[starting_index..-1] || "")
-#   end
-
-#   def +(other)
-#     self.class.get(@string+other.to_s)
-#   end
-
-# end
-
-class EditGeneratingString < DelegateClass(String)
-
-  ALPHABET = ('a'..'z').to_a
-
-  def self.cache
-    @@cache
-  end
-
-  def self.get(string)
-    @@cache ||= {}
-    if @@cache.has_key?(string)
-      @@cache[string]
-    else
-      egstring = self.new(string)
-      egstring.freeze
-      @@cache[string] = egstring
-    end
-  end
-
-  def initialize(string)
-    super
-    @string = string
-    # PERF - make this a constant
-    @splits = []
-    #cstring = CuttableString.get(@string)
-    #cstring.length.times do |i|
-    @string.length.times do |i|
-      @splits << @string.cut(i)
-    end
-    #end
-    @hash = @string.hash
-  end
-
-  def hash
-    @hash
-  end
-
-  def edits
-    (deletes + transposes + replaces + inserts).uniq.map{ |x| self.class.get(x)}
-  end
-
-  def deletes
-    @splits.map do |left, right|
-      "#{left}#{right.rest}"
-    end
-  end
-
-  def transposes
-    @splits.map do |left, right|
-      "#{left}#{right.second}#{right.first}#{right.rest(2)}"
-    end
-  end
-
-  def replaces
-    arr = []
-    @splits.each do |left, right|
       ALPHABET.each do |letter|
-        arr << "#{left}#{letter}#{right.rest}"
+        
+        # compute replaces
+        edits << "#{left}#{letter}#{right_rest}"
+        
+        # compute inserts
+        edits << "#{left}#{letter}#{right}"
       end
     end
-    arr
-  end
+    
+    # add on additional inserts (for the split of [word, ''])
+    left, right = word, ""
+    ALPHABET.each do |letter|
+      edits << "#{left}#{letter}#{right}"
+    end
 
-  def inserts
-    arr = []
-    (@splits + [[@string,""]]).map do |left, right| 
-      ALPHABET.map do |letter|
-        arr << "#{left}#{letter}#{right}"
-      end
-    end
-    arr
+    edits.uniq!
+    edits
   end
 
 end

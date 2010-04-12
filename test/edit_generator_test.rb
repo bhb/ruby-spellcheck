@@ -20,4 +20,10 @@ class EditGeneratorClass < Test::Unit::TestCase
     assert_equal %w{smoothing seething something soothing}.sort, generator.edits(2).sort
   end
 
+  should "have 114,324 distance-2 edits for 'something' if none are pruned" do
+    counter = stub_everything(:present? => true)
+    generator = EditGenerator.new("something", counter)
+    assert_equal 114_324, generator.edits(2).length
+  end
+
 end
