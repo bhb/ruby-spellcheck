@@ -10,21 +10,18 @@ class WordCounter
   def initialize(words)
     @hash = {}
     words.each do |word|
-      @hash[word.downcase.to_sym] ||= 0
-      @hash[word.downcase.to_sym] += 1
+      downcased = word.downcase
+      @hash[downcased] ||= 0
+      @hash[downcased] += 1
     end
   end
 
   def count(key)
-    @hash.fetch(key.to_sym, 1)
+    @hash.fetch(key, 1)
   end
 
   def present?(key)
-    @hash.has_key?(key.to_sym)
-  end
-
-  def any_present?(keys)
-    keys.any? {|key| present? key}
+    @hash.has_key?(key)
   end
 
 end
