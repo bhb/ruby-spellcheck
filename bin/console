@@ -1,0 +1,18 @@
+require File.expand_path('../../lib/spellcheck',  __FILE__)
+checker = Spellchecker.new
+
+begin
+  puts "Enter a word to spellcheck it. Enter Ctrl+c to quit"
+  loop do
+    print "> "
+    word = gets
+    correction = checker.correct(word)
+    if word == correction
+      puts "'#{word}' is spelled correctly."
+    else
+      puts "Did you mean '#{correction}'?"
+    end
+  end
+rescue Interrupt
+  puts "Quitting"
+end

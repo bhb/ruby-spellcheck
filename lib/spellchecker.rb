@@ -7,7 +7,7 @@ class Spellchecker
   def correct(word)
     generator = EditGenerator.new(word, @word_counter)
     candidates = generator.candidates(word)
-    candidates.max {|candidate| @word_counter.count(candidate)}
+    candidates.max {|candidate1,candidate2| @word_counter.count(candidate1) <=> @word_counter.count(candidate2)}
   end
 
 end
