@@ -1,7 +1,9 @@
+
 class WordCounter
 
   def self.for_path(path)
-    words = File.read(path).split(" ")
+    text = File.read(path)
+    words = text.scan(/[a-zA-Z]+/)
     self.new(words)
   end
   

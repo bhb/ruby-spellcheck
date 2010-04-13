@@ -201,7 +201,7 @@ class IntegrationTest < Test::Unit::TestCase
       misspellings.split(' ').each do |misspelling|
         correction = spellchecker.correct(misspelling)
         mistakes+=1 if (correction != word)
-        puts "correct('#{misspelling}') => '#{correction}' ; expected '#{word}'" if correction!=word
+        #puts "correct('#{misspelling}') => '#{correction}' ; expected '#{word}'" if correction!=word
       end
     end
     assert_equal 68, mistakes
