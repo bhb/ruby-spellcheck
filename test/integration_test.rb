@@ -193,22 +193,25 @@ class IntegrationTest < Test::Unit::TestCase
     'biulding', 'required'=> 'reequired', 'necessitates'=> 'nessisitates',
     'together'=> 'togehter', 'profits'=> 'proffits'}
 
-
-  should "have 68 errors in first corpus" do
+  
+  def count_mistakes(corpus)
     mistakes = 0
     spellchecker = Spellchecker.new
-    CORPUS1.each do |word, misspellings|
+    corpus.each do |word, misspellings|
       misspellings.split(' ').each do |misspelling|
         correction = spellchecker.correct(misspelling)
         mistakes+=1 if (correction != word)
-        #puts "correct('#{misspelling}') => '#{correction}' ; expected '#{word}'" if correction!=word
       end
     end
-    assert_equal 68, mistakes
+    mistakes
   end
 
-  should "have x errors in second corpus" do
-      
+  should "have 68 errors in first corpus" do
+    assert_equal 68, count_mistakes(CORPUS1)
+  end
+
+  should "have 130 errors in second corpus" do
+    assert_equal 130, count_mistakes(CORPUS2)
   end
 
 end
